@@ -1,0 +1,20 @@
+{
+  "domain": "weatherxm",
+  "name": "WeatherXM",
+  "codeowners": [
+    "@thenoctambulist"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/TheNoctambulist/hass-wxm",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/TheNoctambulist/hass-wxm/issues",
+  "loggers": [
+    "custom_components.weatherxm",
+    "pywxm"
+  ],
+  "requirements": [
+    "pywxm==0.3.0"
+  ],
+  "version": "0.0.0"
+}

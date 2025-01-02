@@ -1,0 +1,53 @@
+name: "Validate"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  hassfest:
+    name: "Hassfest Validation"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4"
+
+      - name: "Run hassfest validation"
+        uses: "home-assistant/actions/hassfest@master"
+
+  hacs:
+    name: "HACS Validation"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4"
+
+      - name: "Run HACS validation"
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+
+  # Validates that the dependency version in the manifest.json matches the PDM lock file.
+  dependencies:
+      name: "Dependency Version Validation"
+      runs-on: "ubuntu-latest"
+      steps:
+        - name: "Checkout the repository"
+          uses: "actions/checkout@v4"
+        - name: Set up PDM
+          uses: pdm-project/setup-pdm@v4
+          with:
+            python-version: 3.12
+            cache: true
+        - name: "Assert versions"
+          run: |
+            pdm sync
+            pdm run validate-manifest

@@ -1,0 +1,8 @@
+{
+    "name": "WeatherXM",
+    "homeassistant": "2024.12.1",
+    "render_readme": true,
+    "zip_release": true,
+    "filename": "hass-wxm.zip",
+    "country": "AU"
+}

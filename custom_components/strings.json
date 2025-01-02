@@ -1,0 +1,24 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Connect to WeatherXM",
+                "description": "Enter your WeatherXM account credentials.",
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+                },
+                "data_description": {
+                    "username": "WeatherXM account email address"
+                }
+            },
+            "select_device": {
+                "title": "Select a Weather Station",
+                "description": "Choose the weather station to use as the source of weather data.",
+                "data": {
+                    "device_id": "Weather Station"
+                }
+            }
+        }
+    }
+}
