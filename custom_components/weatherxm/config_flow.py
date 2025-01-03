@@ -26,6 +26,22 @@ class WxmConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = CONF_VERSION
     MINOR_VERSION = CONF_MINOR_VERSION
 
+    async def async_step_reauth(
+        self, _: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Re-authenticate with WeatherXM."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, data: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        if data is None:
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                data_schema=vol.Schema({}),
+            )
+        return await self.async_step_user()
+
     async def async_step_user(
         self, data: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
@@ -36,11 +52,16 @@ class WxmConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 aiohttp_client.async_get_clientsession(self.hass)
             )
             try:
-                await wxm_client.login(
+                refresh_token = await wxm_client.login(
                     username=data[CONF_USERNAME],
                     password=data[CONF_PASSWORD],
                 )
                 self.context[_CONTEXT_WXM_CLIENT] = wxm_client  # type: ignore[literal-required]
+                if self.source == config_entries.SOURCE_REAUTH:
+                    return self.async_update_reload_and_abort(
+                        self._get_reauth_entry(),
+                        data_updates={CONF_ACCESS_TOKEN: refresh_token},
+                    )
                 return await self.async_step_select_device()
             except pywxm.AuthenticationError as e:
                 errors[CONF_USERNAME] = e.message

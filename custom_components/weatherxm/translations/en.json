@@ -4,6 +4,10 @@
             "already_configured": "Weather station already added."
         },
         "step": {
+            "reauth_confirm": {
+                "title": "Re-authenticiation required",
+                "description": "The WeatherXM integration needs to re-authenticate with your account"
+            },
             "user": {
                 "title": "Connect to WeatherXM",
                 "description": "Enter your WeatherXM account credentials.",
@@ -22,6 +26,9 @@
                     "device_id": "Weather Station"
                 }
             }
+        },
+        "abort": {
+            "reauth_successful": "Re-authentication successful"
         }
     }
 }

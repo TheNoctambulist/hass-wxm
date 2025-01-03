@@ -3,7 +3,7 @@ name = "hass-wxm"
 version = "0.0.0"
 description = "WeatherXM Home Assistant Integration"
 authors = [{ name = "TheNoctambulist", email = "thenoctambulist@zoho.com" }]
-dependencies = ["homeassistant>=2024.12.1", "pywxm>=0.1.0"]
+dependencies = ["homeassistant>=2024.12.1", "pywxm>=0.4.0"]
 requires-python = ">=3.12,<3.13"
 readme = "README.md"
 license = { text = "MIT" }

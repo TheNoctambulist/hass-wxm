@@ -1422,7 +1422,7 @@ files = [
 
 [[package]]
 name = "pywxm"
-version = "0.3.0"
+version = "0.4.0"
 requires_python = ">=3.11"
 summary = "AsyncIO Python SDK for WeatherXM"
 groups = ["default"]
@@ -1431,8 +1431,8 @@ dependencies = [
     "pyjwt>=2.10.1",
 ]
 files = [
-    {file = "pywxm-0.3.0-py3-none-any.whl", hash = "sha256:8d7c926b4ea3ea1cb1283ec76ec21a480a5af4c6ceb4632b044b31f624a4317f"},
-    {file = "pywxm-0.3.0.tar.gz", hash = "sha256:45f5513345f1307eebdc26fdca716fead5906b4c8b7f1a6ed7c29f91b74fbe48"},
+    {file = "pywxm-0.4.0-py3-none-any.whl", hash = "sha256:a4533228fd3330d23ece043f1f2a22649a88d3f200f8d1f1914ab8a5d38ba605"},
+    {file = "pywxm-0.4.0.tar.gz", hash = "sha256:4bd9c3038f48d287441b96c7a11fde7649c1039f30c4bd0bfe7efb9e4fe9fc2f"},
 ]
 
 [[package]]
