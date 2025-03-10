@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:27841f4b2aff42911dcb20cb945f48950223c72698d3de6ebed2adf69728d6ce"
+content_hash = "sha256:88ad4c54035c6f6073ad9ee8f5a3f3f3345c2615582d0080266380b91041efb5"
 
 [[metadata.targets]]
 requires_python = ">=3.12,<3.13"
@@ -1422,7 +1422,7 @@ files = [
 
 [[package]]
 name = "pywxm"
-version = "0.4.0"
+version = "1.1.0"
 requires_python = ">=3.11"
 summary = "AsyncIO Python SDK for WeatherXM"
 groups = ["default"]
@@ -1431,8 +1431,8 @@ dependencies = [
     "pyjwt>=2.10.1",
 ]
 files = [
-    {file = "pywxm-0.4.0-py3-none-any.whl", hash = "sha256:a4533228fd3330d23ece043f1f2a22649a88d3f200f8d1f1914ab8a5d38ba605"},
-    {file = "pywxm-0.4.0.tar.gz", hash = "sha256:4bd9c3038f48d287441b96c7a11fde7649c1039f30c4bd0bfe7efb9e4fe9fc2f"},
+    {file = "pywxm-1.1.0-py3-none-any.whl", hash = "sha256:370cbc425f05526fc4e6a2ddaabb63985138cb36e923d5ddf443f9117013e234"},
+    {file = "pywxm-1.1.0.tar.gz", hash = "sha256:575223455c357deb311427f82a8e0c2554e30dc831d04d050a161145bf8b2e81"},
 ]
 
 [[package]]
