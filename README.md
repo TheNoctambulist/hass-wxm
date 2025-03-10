@@ -71,6 +71,37 @@ Hourly forecasts are provided up to 48 hours in the future.
 In addition to being published as part of the weather entity, individual [**sensor**][hass-sensor] entities are created to represent all current weather observations.
 This allows the values to be more easily used in automations or other locations.
 
+### :dollar: Sensor: Total Rewards (`sensor.<station_name>_total_rewards)
+The total WXM rewards earned by the station.
+
+### :dollar: Sensor: Latest Reward (`sensor.<station_name>_latest_reward)
+The latest WXM reward earned by the station.
+Rewards are typically allocated to stations once per day.
+
+<details>
+<summary>States and Attributes</summary>
+
+#### Attributes
+ Attribute               | Description 
+-------------------------|-------------
+ `reward_timestamp`      | The time the reward was allocated to the station
+
+</details>
+
+### :green_circle: Sensor: Data Quality (`sensor.<station_name>_total_reward)
+The latest data quality multiplier for the weather station.
+The data quality is updated at the same time as the latest reward.
+
+<details>
+<summary>States and Attributes</summary>
+
+#### Attributes
+ Attribute               | Description 
+-------------------------|-------------
+ `reward_timestamp`      | The timestamp of the corresponding reward for this data quality measurement
+
+</details>
+
 ### :battery: Binary Sensor: Battery (`binary_sensor.<station_name>_battery`)
 A [**binary sensor**][hass-binary] is created for each weather station to publish the current battery level.
 

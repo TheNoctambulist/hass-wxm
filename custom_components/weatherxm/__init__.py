@@ -7,7 +7,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 
 from .const import CONF_DEVICE_ID
-from .entities import WxmCoordinator, WxmCoordinators, WxmForecastCoordinator
+from .entities import (
+    WxmCoordinator,
+    WxmCoordinators,
+    WxmForecastCoordinator,
+    WxmRewardsCoordinator,
+)
 
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
@@ -33,13 +38,23 @@ async def async_setup_entry(
         wxm_api=wxm_api,
         device_id=device_id,
     )
+    rewards_coordinator = WxmRewardsCoordinator(
+        hass=hass,
+        config_entry=entry,
+        wxm_api=wxm_api,
+        device_id=device_id,
+    )
     forecast_coordinator = WxmForecastCoordinator(
         hass=hass,
         config_entry=entry,
         wxm_api=wxm_api,
         device_id=device_id,
     )
-    entry.runtime_data = WxmCoordinators(device_coordinator, forecast_coordinator)
+    entry.runtime_data = WxmCoordinators(
+        device=device_coordinator,
+        rewards=rewards_coordinator,
+        forecast=forecast_coordinator,
+    )
 
     # Ensure any changes to the refresh token are persisted.
     async def _async_on_token_update(token: str) -> None:
@@ -52,6 +67,7 @@ async def async_setup_entry(
 
     # Authenticate and load initial weather station data.
     await device_coordinator.async_config_entry_first_refresh()
+    await rewards_coordinator.async_config_entry_first_refresh()
     await forecast_coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

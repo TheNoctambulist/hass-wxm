@@ -53,6 +53,47 @@ class WxmCoordinator(update_coordinator.DataUpdateCoordinator[pywxm.WxmDevice]):
             return device_info
 
 
+class WxmRewardsCoordinator(
+    update_coordinator.DataUpdateCoordinator[pywxm.DeviceRewards]
+):
+    """Co-ordinator to poll the WeatherXM API for device rewards updates."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry["WxmCoordinators"],
+        wxm_api: pywxm.WxmApi,
+        device_id: str,
+    ) -> None:
+        """Initialise the co-ordinator."""
+        super().__init__(
+            hass=hass,
+            config_entry=config_entry,
+            logger=_LOGGER,
+            name=f"WeatherXM Rewards {device_id}",
+            # Rewards data is typically updated once per day, so no need to poll too
+            # frequently
+            update_interval=datetime.timedelta(minutes=15),
+            always_update=False,
+        )
+        self.wxm_api = wxm_api
+        self.device_id = device_id
+
+    async def _async_update_data(self) -> pywxm.DeviceRewards:
+        """Fetch updated rewards data."""
+        try:
+            device_rewards = await self.wxm_api.get_latest_rewards(self.device_id)
+        except pywxm.AuthenticationError as e:
+            raise update_coordinator.ConfigEntryAuthFailed from e
+        except pywxm.UnexpectedError as e:
+            raise update_coordinator.UpdateFailed(
+                f"Error communicating with WeatherXM: {e.message}"
+            ) from e
+        else:
+            _LOGGER.debug("Updated rewards info: %s", device_rewards)
+            return device_rewards
+
+
 class WxmForecastCoordinator(
     update_coordinator.TimestampDataUpdateCoordinator[pywxm.WeatherForecast]
 ):
@@ -104,6 +145,7 @@ class WxmCoordinators:
     """Groups all coordinators so they can be stored in the ConfigEntry runtime data."""
 
     device: WxmCoordinator
+    rewards: WxmRewardsCoordinator
     forecast: WxmForecastCoordinator
 
 
@@ -129,6 +171,30 @@ class WxmEntity(update_coordinator.CoordinatorEntity[WxmCoordinator]):
     @property
     def current_weather(self) -> pywxm.HourlyWeatherData:
         return self.wxm_device.current_weather
+
+
+class WxmRewardsEntity(update_coordinator.CoordinatorEntity[WxmRewardsCoordinator]):
+    """A mix-in class for common WeatherXM Rewards entity logic."""
+
+    # All entities must provide a name
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: WxmRewardsCoordinator,
+        wxm_device: pywxm.WxmDevice,
+        *,
+        id_suffix: str,
+    ) -> None:
+        super().__init__(coordinator)
+
+        self._attr_unique_id = coordinator.device_id + id_suffix
+        self._attr_device_info = device_info(wxm_device)
+
+    @property
+    def rewards(self) -> pywxm.DeviceRewards:
+        # Typing for self.coordinator doesn't seem to survive the base class generics.
+        return cast(pywxm.DeviceRewards, self.coordinator.data)
 
 
 def device_info(device: pywxm.WxmDevice) -> device_registry.DeviceInfo:

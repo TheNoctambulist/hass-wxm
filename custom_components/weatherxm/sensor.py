@@ -3,6 +3,10 @@
 Sensor entities are created for current weather measurements.
 """
 
+from collections.abc import Mapping
+from typing import Any
+
+import pywxm
 from homeassistant.components import sensor
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -18,7 +22,13 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .entities import WxmCoordinator, WxmCoordinators, WxmEntity
+from .entities import (
+    WxmCoordinator,
+    WxmCoordinators,
+    WxmEntity,
+    WxmRewardsCoordinator,
+    WxmRewardsEntity,
+)
 
 
 async def async_setup_entry(
@@ -27,22 +37,29 @@ async def async_setup_entry(
     async_add_devices: AddEntitiesCallback,
 ) -> None:
     """Set up the WeatherXM sensors."""
-    coordinator = config_entry.runtime_data.device
+    device_coordinator = config_entry.runtime_data.device
+    rewards_coordinator = config_entry.runtime_data.rewards
+    wxm_device: pywxm.WxmDevice = device_coordinator.data
 
     async_add_devices(
         [
-            WxmTemperatureEntity(coordinator),
-            WxmApparentTemperatureEntity(coordinator),
-            WxmDewPointEntity(coordinator),
-            WxmHumidityEntity(coordinator),
-            WxmDailyPrecipitationEntity(coordinator),
-            WxmPrecipitationRateEntity(coordinator),
-            WxmWindSpeedEntity(coordinator),
-            WxmWindGustSpeedEntity(coordinator),
-            WxmWindDirectionEntity(coordinator),
-            WxmAbsolutePressure(coordinator),
-            WxmUvIndexEntity(coordinator),
-            WxmSolarIrradianceEntity(coordinator),
+            # Weather entities
+            WxmTemperatureEntity(device_coordinator),
+            WxmApparentTemperatureEntity(device_coordinator),
+            WxmDewPointEntity(device_coordinator),
+            WxmHumidityEntity(device_coordinator),
+            WxmDailyPrecipitationEntity(device_coordinator),
+            WxmPrecipitationRateEntity(device_coordinator),
+            WxmWindSpeedEntity(device_coordinator),
+            WxmWindGustSpeedEntity(device_coordinator),
+            WxmWindDirectionEntity(device_coordinator),
+            WxmAbsolutePressure(device_coordinator),
+            WxmUvIndexEntity(device_coordinator),
+            WxmSolarIrradianceEntity(device_coordinator),
+            # Rewards entities
+            WxmTotalRewardsEntity(rewards_coordinator, wxm_device),
+            WxmLatestRewardEntity(rewards_coordinator, wxm_device),
+            WxmDataQualityEntity(rewards_coordinator, wxm_device),
         ]
     )
 
@@ -249,3 +266,67 @@ class WxmSolarIrradianceEntity(WxmEntity, sensor.SensorEntity):
     @property
     def native_value(self) -> float:  # type: ignore[override]
         return self.current_weather.solar_irradiance
+
+
+class WxmTotalRewardsEntity(WxmRewardsEntity, sensor.SensorEntity):
+    """Sensor entity reporting the total rewards earned."""
+
+    _attr_name = "Total Rewards"
+    _attr_state_class = sensor.SensorStateClass.TOTAL_INCREASING
+    _attr_native_unit_of_measurement = "WXM"
+    _attr_suggested_display_precision = 2
+    _attr_icon = "mdi:cash"
+
+    def __init__(
+        self, coordinator: WxmRewardsCoordinator, wxm_device: pywxm.WxmDevice
+    ) -> None:
+        super().__init__(coordinator, wxm_device, id_suffix="_total_rewards")
+
+    @property
+    def native_value(self) -> float:  # type: ignore[override]
+        return self.rewards.total_rewards
+
+
+class WxmLatestRewardEntity(WxmRewardsEntity, sensor.SensorEntity):
+    """Sensor entity reporting the latest reward earned."""
+
+    _attr_name = "Latest Reward"
+    _attr_state_class = sensor.SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "WXM"
+    _attr_suggested_display_precision = 2
+    _attr_icon = "mdi:cash-plus"
+
+    def __init__(
+        self, coordinator: WxmRewardsCoordinator, wxm_device: pywxm.WxmDevice
+    ) -> None:
+        super().__init__(coordinator, wxm_device, id_suffix="_latest_reward")
+
+    @property
+    def native_value(self) -> float:  # type: ignore[override]
+        return self.rewards.latest_reward.total_reward
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any]:  # type: ignore[override]
+        return {"reward_time": self.rewards.latest_reward.timestamp}
+
+
+class WxmDataQualityEntity(WxmRewardsEntity, sensor.SensorEntity):
+    """Sensor entity reporting the latest data quality."""
+
+    _attr_name = "Data Quality"
+    _attr_state_class = sensor.SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_suggested_display_precision = 0
+
+    def __init__(
+        self, coordinator: WxmRewardsCoordinator, wxm_device: pywxm.WxmDevice
+    ) -> None:
+        super().__init__(coordinator, wxm_device, id_suffix="_data_quality")
+
+    @property
+    def native_value(self) -> float:  # type: ignore[override]
+        return self.rewards.latest_reward.base_reward_score
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any]:  # type: ignore[override]
+        return {"reward_time": self.rewards.latest_reward.timestamp}
