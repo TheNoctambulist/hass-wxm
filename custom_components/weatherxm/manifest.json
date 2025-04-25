@@ -14,7 +14,7 @@
     "pywxm"
   ],
   "requirements": [
-    "pywxm==1.1.0"
+    "pywxm==1.1.1"
   ],
   "version": "0.0.0"
 }
